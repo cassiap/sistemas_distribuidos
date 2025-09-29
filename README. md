@@ -1,0 +1,78 @@
+🖧 Projeto – Arquitetura de Sistemas Distribuídos
+
+Este repositório contém a implementação das sprints do projeto de Arquitetura de Sistemas Distribuídos (2025/2).
+O objetivo é desenvolver uma arquitetura P2P com balanceamento dinâmico, seguindo as entregas definidas pelo professor.
+
+📌 Sprint 1 – Heartbeat Contínuo
+Objetivo
+
+Implementar o mecanismo de heartbeat entre servidores para manter uma lista atualizada de peers ativos, com timeout automático.
+
+Protocolo
+
+Servidor A → Servidor B
+
+{"TASK": "HEARTBEAT"}
+
+
+Servidor B → Servidor A
+
+{"TASK": "HEARTBEAT", "RESPONSE": "ALIVE", "SERVER_ID": "UUID_B"}
+
+Comportamento
+
+Cada nó envia batidas periódicas de heartbeat para seus peers.
+
+As respostas atualizam a lista de servidores ativos.
+
+Se um servidor não responder dentro do timeout, é marcado como TIMEOUT.
+
+📂 Estrutura do Projeto
+.
+├── hb_common.py         # Funções utilitárias para envio/recebimento de JSON via socket
+├── registry.py          # Registro de servidores com controle de timeout
+├── node.py              # Implementação do nó (server + client heartbeat)
+├── run_examples.txt     # Exemplos de execução
+└── README.md            # Este documento
+
+▶️ Como Executar
+
+Abra dois terminais (ou mais) e rode:
+
+Terminal 1 (porta 9101):
+
+python node.py --port 9101 --peer 127.0.0.1:9102 --interval 2 --timeout 6
+
+
+Terminal 2 (porta 9102):
+
+python node.py --port 9102 --peer 127.0.0.1:9101 --interval 2 --timeout 6
+
+Saída esperada
+
+Cada nó imprimirá periodicamente sua registry:
+
+[ab12cd34] registry: {
+  '2f1e...': {'server_id': '2f1e...', 'host': '127.0.0.1', 'port': 9102, 'last_seen': 169..., 'status': 'ALIVE'}
+}
+
+
+Se você fechar o Terminal 2, após ~6 segundos o nó do Terminal 1 atualizará o status do peer para TIMEOUT.
+
+⚙️ Parâmetros
+
+--port → porta TCP do nó.
+
+--peer host:port → peers para enviar heartbeat (pode repetir).
+
+--interval → intervalo entre heartbeats (segundos).
+
+--timeout → tempo máximo sem resposta para marcar TIMEOUT.
+
+🚀 Próximas Sprints
+
+Sprint 2: Monitoramento de carga e threshold.
+
+Sprint 3: Protocolo de conversa consensual entre Masters.
+
+Sprint 4: Redirecionamento dinâmico de Workers.
